@@ -1,0 +1,70 @@
+11:54:38 **** Incremental Build of configuration Debug for project handgesture_detection ****
+make all 
+Building file: ../src/opencv_handdetect.cpp
+Invoking: GCC C++ Compiler
+g++ -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"src/opencv_handdetect.d" -MT"src/opencv_handdetect.d" -o "src/opencv_handdetect.o" "../src/opencv_handdetect.cpp"
+../src/opencv_handdetect.cpp:22:1: error: stray ‘\342’ in program
+ const char* cascade_name = “fist.xml”;
+ ^
+../src/opencv_handdetect.cpp:22:1: error: stray ‘\200’ in program
+../src/opencv_handdetect.cpp:22:1: error: stray ‘\234’ in program
+../src/opencv_handdetect.cpp:22:1: error: stray ‘\342’ in program
+../src/opencv_handdetect.cpp:22:1: error: stray ‘\200’ in program
+../src/opencv_handdetect.cpp:22:1: error: stray ‘\235’ in program
+../src/opencv_handdetect.cpp:25:1: error: stray ‘\342’ in program
+ string cascadeName = “fist.xml”; /*ROBUST-fist detection haartraining file*/
+ ^
+../src/opencv_handdetect.cpp:25:1: error: stray ‘\200’ in program
+../src/opencv_handdetect.cpp:25:1: error: stray ‘\234’ in program
+../src/opencv_handdetect.cpp:25:1: error: stray ‘\342’ in program
+../src/opencv_handdetect.cpp:25:1: error: stray ‘\200’ in program
+../src/opencv_handdetect.cpp:25:1: error: stray ‘\235’ in program
+../src/opencv_handdetect.cpp:34:1: error: stray ‘\342’ in program
+ fprintf( stderr, “ERROR: Could not load classifier cascade\n” );
+ ^
+../src/opencv_handdetect.cpp:34:1: error: stray ‘\200’ in program
+../src/opencv_handdetect.cpp:34:1: error: stray ‘\234’ in program
+../src/opencv_handdetect.cpp:34:1: error: stray ‘\’ in program
+../src/opencv_handdetect.cpp:34:1: error: stray ‘\342’ in program
+../src/opencv_handdetect.cpp:34:1: error: stray ‘\200’ in program
+../src/opencv_handdetect.cpp:34:1: error: stray ‘\235’ in program
+../src/opencv_handdetect.cpp:39:1: error: stray ‘\342’ in program
+ cvNamedWindow(“result”, 1);
+ ^
+../src/opencv_handdetect.cpp:39:1: error: stray ‘\200’ in program
+../src/opencv_handdetect.cpp:39:1: error: stray ‘\234’ in program
+../src/opencv_handdetect.cpp:39:1: error: stray ‘\342’ in program
+../src/opencv_handdetect.cpp:39:1: error: stray ‘\200’ in program
+../src/opencv_handdetect.cpp:39:1: error: stray ‘\235’ in program
+../src/opencv_handdetect.cpp:85:1: error: stray ‘\342’ in program
+ cvShowImage(“result”, img);
+ ^
+../src/opencv_handdetect.cpp:85:1: error: stray ‘\200’ in program
+../src/opencv_handdetect.cpp:85:1: error: stray ‘\234’ in program
+../src/opencv_handdetect.cpp:85:1: error: stray ‘\342’ in program
+../src/opencv_handdetect.cpp:85:1: error: stray ‘\200’ in program
+../src/opencv_handdetect.cpp:85:1: error: stray ‘\235’ in program
+../src/opencv_handdetect.cpp:22:31: error: ‘fist’ was not declared in this scope
+ const char* cascade_name = “fist.xml”;
+                               ^
+../src/opencv_handdetect.cpp:25:25: error: ‘fist’ was not declared in this scope
+ string cascadeName = “fist.xml”; /*ROBUST-fist detection haartraining file*/
+                         ^
+../src/opencv_handdetect.cpp: In function ‘int main()’:
+../src/opencv_handdetect.cpp:34:26: error: found ‘:’ in nested-name-specifier, expected ‘::’
+ fprintf( stderr, “ERROR: Could not load classifier cascade\n” );
+                          ^
+../src/opencv_handdetect.cpp:34:21: error: ‘ERROR’ has not been declared
+ fprintf( stderr, “ERROR: Could not load classifier cascade\n” );
+                     ^
+../src/opencv_handdetect.cpp:39:18: error: ‘result’ was not declared in this scope
+ cvNamedWindow(“result”, 1);
+                  ^
+../src/opencv_handdetect.cpp: In function ‘void detectAndDraw(IplImage*)’:
+../src/opencv_handdetect.cpp:85:16: error: ‘result’ was not declared in this scope
+ cvShowImage(“result”, img);
+                ^
+make: *** [src/opencv_handdetect.o] Error 1
+
+11:54:40 Build Finished (took 2s.320ms)
+

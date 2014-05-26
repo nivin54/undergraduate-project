@@ -1,0 +1,42 @@
+/*
+ * label.cpp
+ *
+ *  Created on: 23-Mar-2014
+ *      Author: mac
+ */
+#include <bits/stdc++.h>
+#include "skincolor.h"
+#include "label.h"
+
+
+	void mapskeleton:: face_map(Point array[3],Point dime[3],int sz,Mat skin1)
+	{
+		int s=100000,index;righthand=lefthand=false;
+		for(int i=0;i<sz;i++)
+		{
+			if(abs(array[i].x-face.x)+abs(array[i].y-face.y)<s)
+			{ index=i;s=abs(array[i].x-face.x)+abs(array[i].y-face.y);}
+		}
+		swap(array[1],array[index]);
+		faceb=array[1];
+
+		if(sz>2 and array[0].x>array[2].x)
+				swap(array[0],array[2]);
+		if(sz>2)
+		{right=array[0];left=array[2];righthand=true;lefthand=true;}
+		else if(sz>1)
+		{
+			if(array[1].x<array[0].x)
+					{right=array[0];righthand=true;}
+			else
+			{
+				left=array[0];lefthand=true;
+			}
+		}
+		//putText(skin1, "Head", faceb,FONT_HERSHEY_COMPLEX_SMALL, 0.8, cvScalar(200,200,250), 1, CV_AA);
+		if(righthand)
+		//putText(skin1, "Righthand",right ,FONT_HERSHEY_COMPLEX_SMALL, 0.8, cvScalar(200,200,250), 1, CV_AA);
+		if(lefthand)
+		//putText(skin1, "Lefthand",left ,FONT_HERSHEY_COMPLEX_SMALL, 0.8, cvScalar(200,200,250), 1, CV_AA);
+	}
+

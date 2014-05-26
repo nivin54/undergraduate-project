@@ -1,0 +1,341 @@
+/*
+ * Segement(1_0).cpp
+ *
+ *  Created on: 03-Jan-2014
+ *      Author: mac
+ */
+#include <opencv2/core/core.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
+#include <opencv2/highgui/highgui.hpp>
+#include <opencv2/video/tracking.hpp>
+#include <opencv2/nonfree/features2d.hpp>
+#include <opencv2/objdetect/objdetect.hpp>
+#include <opencv2/legacy/legacy.hpp>
+#include <bits/stdc++.h>
+#include <vector>
+#include<algorithm>
+#include <X11/Xlib.h>
+#include <X11/Xutil.h>
+using namespace cv;
+using namespace std;
+//This function returns the square of the euclidean distance between 2 points.
+Mat src, src_gray,skin1,drawing,skin,skin2;
+int thresh = 100,max_thresh = 255;
+int dim = 2, nParticles = 25;
+RNG rng(12345);
+vector<Point> mouseV, particleV;
+CvConDensation* condensH = cvCreateConDensation(dim, dim, nParticles);
+CvConDensation* condensL = cvCreateConDensation(dim, dim, nParticles);
+CvConDensation* condensR = cvCreateConDensation(dim, dim, nParticles);
+long long int noframes;
+/// Function header
+//This is mouse pointer and kalmanv pointer
+Mat_<float> measurement(2,1);
+void thresh_callback(int, void* );
+vector<KeyPoint> keypoints;
+vector<Rect> inside;
+void detectAndDisplay( Mat frame );
+/** Global variables */
+
+/** Particle Filter **/
+
+  float xRange = 650.0;
+  float yRange = 650.0;
+
+  float minRange[] = { 0, 0 };
+  float maxRange[] = { xRange, yRange };
+  CvMat LB, UB;
+
+
+  /** End of Intializtion for the particle filter **/
+
+
+
+String window_name = "Capture - Face detection";
+
+bool checkinside(Rect A)
+{
+	for(int i=0;i<(int)inside.size();i++)
+	{
+		Point P,P1,P2,P3;
+		P=inside[i].tl();P1=inside[i].br();P2=A.tl();P3=A.br();
+		if(P.x<=P2.x and P.y<=P2.y and P1.x>=P3.x and P1.y>=P3.y)
+					return false;
+	}
+	inside.push_back(A);
+	return true;
+
+}
+int removekeypoints()
+{
+	vector<KeyPoint> aux;
+	int len=keypoints.size();
+	bool flag;
+	for(int j=0;j<len;j++)
+	{
+		flag=false;
+		for(int i=0;i<(int)inside.size();i++)
+		{
+				Point P,P1,P2;
+				P=inside[i].tl();P1=inside[i].br();P2.x=keypoints[j].pt.x;P2.y=keypoints[j].pt.y;
+				if(P.x<=P2.x and P.y<=P2.y and P1.x>=P2.x and P1.y>=P2.y)
+							flag=true;
+		}
+		if(flag)
+					aux.push_back(keypoints[j]);
+	}
+	keypoints=aux;
+return 0;
+}
+int intialize_particlefilter(CvConDensation* condens)
+{
+		cvInitMatHeader(&LB, 2, 1, CV_32FC1, minRange);
+		cvInitMatHeader(&UB, 2, 1, CV_32FC1, maxRange);
+
+		cvConDensInitSampleSet(condens, &LB, &UB);
+
+		// The OpenCV documentation doesn't tell you to initialize this
+		  // transition matrix, but you have to do it.  For this 2D example,
+		  // we're just using a 2x2 identity matrix.  I'm sure there's a slicker
+		  // way to do this, left as an exercise for the reader.
+		  condens->DynamMatr[0] = 1.0;
+		  condens->DynamMatr[1] = 0.0;
+		  condens->DynamMatr[2] = 0.0;
+		  condens->DynamMatr[3] = 1.0;
+		  return 0;
+}
+pair<float,float> measure_particlefilter(float x,float y,CvConDensation* condens)
+{
+	 Point measPt(x,y);
+	 	 for (int i = 0; i < condens->SamplesNum; i++)
+	 	 {
+	        	float diffX = (x - condens->flSamples[i][0])/xRange;
+	        	float diffY = (y - condens->flSamples[i][1])/yRange;
+	        	condens->flConfidence[i] = 1.0 / (sqrt(diffX * diffX + diffY * diffY));
+		 }
+	 	cvConDensUpdateByTime(condens);
+	 	cv::Point statePt(condens->State[0], condens->State[1]);
+	 	return pair<float,float>(condens->State[0],condens->State[1]);
+}
+
+
+
+bool R1(int R, int G, int B) {
+    bool e1 = (R>95) && (G>40) && (B>20) && ((max(R,max(G,B)) - min(R, min(G,B)))>15) && (abs(R-G)>15) && (R>G) && (R>B);
+    bool e2 = (R>220) && (G>210) && (B>170) && (abs(R-G)<=15) && (R>B) && (G>B);
+    return (e1||e2);
+}
+
+bool R2(float Y, float Cr, float Cb) {
+    bool e3 = Cr <= 1.5862*Cb+20;
+    bool e4 = Cr >= 0.3448*Cb+76.2069;
+    bool e5 = Cr >= -4.5652*Cb+234.5652;
+    bool e6 = Cr <= -1.15*Cb+301.75;
+    bool e7 = Cr <= -2.2857*Cb+432.85;
+    return e3 && e4 && e5 && e6 && e7;
+}
+
+bool R3(float H, float S, float V) {
+    return ((H<25) || (H > 230)) and (((S*360)>38 and (S*360)<250) and (V>51 and V<242));
+}
+
+Mat GetSkin(Mat const &src) {
+    // allocate the result matrix
+    Mat dst = src.clone();// OpenCV scales the YCrCb components, so that they
+    Vec3b cwhite = Vec3b::all(255);// cover the whole value range of [0,255], so there's
+    Vec3b cblack = Vec3b::all(0);// no need to scale the values:
+    Mat src_ycrcb, src_hsv;// OpenCV scales the Hue Channel to [0,180] for
+    cvtColor(src, src_ycrcb, CV_BGR2YCrCb);// 8bit images, so make sure we are operating on
+    src.convertTo(src_hsv, CV_32FC3);// the full spectrum from [0,360] by using floating
+    cvtColor(src_hsv, src_hsv, CV_BGR2HSV);// point precision:
+    normalize(src_hsv, src_hsv, 0.0, 255.0, NORM_MINMAX, CV_32FC3);// Now scale the values between [0,255]:
+    for(int i = 0; i < src.rows; i++) {// cout<<src.rows<<endl;
+        for(int j = 0; j < src.cols; j++) {
+            Vec3b pix_bgr = src.ptr<Vec3b>(i)[j];
+            int B = pix_bgr.val[0];int G = pix_bgr.val[1];int R = pix_bgr.val[2];
+            // apply rgb rule
+            bool a = R1(R,G,B);
+
+            Vec3b pix_ycrcb = src_ycrcb.ptr<Vec3b>(i)[j];
+            int Y = pix_ycrcb.val[0];int Cr = pix_ycrcb.val[1];int Cb = pix_ycrcb.val[2];
+            // apply ycrcb rule
+            bool b = R2(Y,Cr,Cb);
+
+            Vec3f pix_hsv = src_hsv.ptr<Vec3f>(i)[j];
+            float H = pix_hsv.val[0];float S = pix_hsv.val[1];float V = pix_hsv.val[2];
+            // apply hsv rule
+            bool c = R3(H,S,V);
+
+            if(!((a and b and c)))
+                dst.ptr<Vec3b>(i)[j] = cblack;
+        }
+    }
+    return dst;
+}
+void MyFilledCircle( Mat img, Point center,int color )
+{
+ int thickness = -1;
+ int lineType = 8;
+ circle(img,center,5.50,Scalar(0,0,255),-1,8,0);
+ //circle( img,center,5/32.0,Scalar( 0, 0, 255 ),thickness,lineType );
+}
+
+int main(int argc, const char *argv[]) {
+
+	//VideoCapture cap("/home/mac/Documents/PROJECT/Sign.mp4");
+	//VideoCapture cap("/home/mac/Documents/PROJECT/Youtube.mp4");
+	//VideoCapture cap("/home/mac/Documents/PROJECT/Last.AVI");
+	//VideoCapture cap("/home/mac/Documents/PROJECT/SAMA.AVI");
+	VideoCapture cap("/home/mac/Documents/PROJECT/NewDataSets/krithika/book_k2.wmv");
+	//VideoCapture cap(0);
+	noframes=1;
+	//notstarted=false;
+	Mat3b frame;
+
+	intialize_particlefilter(condensH);
+	intialize_particlefilter(condensL);
+	intialize_particlefilter(condensR);
+
+	while(cap.read(frame))
+	{
+		noframes+=1;
+		if(noframes<5) continue;
+		skin = GetSkin(frame);
+		//imshow("Skin",skin);
+		cvtColor(skin,skin,CV_RGB2GRAY);
+		skin1 = skin> 50;
+		blur( skin1, skin1, Size(3,3) );
+		char* source_window = "Source";
+		//namedWindow( source_window, CV_WINDOW_AUTOSIZE );
+		src_gray=skin1;
+		createTrackbar( " Threshold:", "Source", &thresh, max_thresh, thresh_callback );
+		cv::SiftFeatureDetector detector;
+		detector.detect(skin1, keypoints);
+		Mat output;
+		thresh_callback( 0, 0 );
+		drawKeypoints(skin1, keypoints, output);
+		skin2=frame;
+		//GaussianBlur( skin1, skin1, Size( 5, 5 ), 0, 0 );
+		blur( skin1, skin1, Size( 5, 5 ) );
+		//medianBlur( skin1, skin1, 5 );
+		//bilateralFilter( skin1, skin1, 5, 5, 5);
+		//imshow(source_window, skin1);
+		//detectAndDisplay( frame);
+
+		//imshow("KeyPoints",output);
+
+		waitKey(5);
+		keypoints.clear();
+
+	}
+    return 0;
+}
+bool cmp(pair<double,Rect > A, pair<double,Rect > B)
+{
+	 return (int)A.first<(int)B.first;
+
+}
+bool cmp2(pair<double,Rect> A,pair<double,Rect> B)
+{
+	return (A.second.br().y<B.second.br().y);
+	//return (int)abs(A.second.tl().y-A.second.br().y) > (int)abs(B.second.tl().y-B.second.br().y);
+
+}
+
+void thresh_callback(int, void* )
+{
+  Mat threshold_output;
+  vector<vector<Point> > contours;
+  vector<Vec4i> hierarchy;/// Detect edges using Threshold
+  threshold( src_gray, threshold_output, thresh, 255, THRESH_BINARY );/// Find contourss
+  findContours( threshold_output, contours, hierarchy, CV_RETR_TREE, CV_CHAIN_APPROX_SIMPLE, Point(0, 0) );/// Approximate contours to polygons + get bounding rects and circles
+  vector<vector<Point> > contours_poly( contours.size() );
+  vector<Rect> boundRect( contours.size() );
+  vector<pair<double,Rect > > boundrectangle;
+  vector<vector<Point> > contours_polygone;
+  vector<Point2f>center( contours.size() );
+  vector<float>radius( contours.size() );
+  vector<pair<double,Rect > > Bound(contours.size());
+  for( int i = 0; i < (int) contours.size(); i++ )
+     {
+	  	  approxPolyDP( Mat(contours[i]), contours_poly[i], 3, true );
+	  	  boundRect[i] = boundingRect( Mat(contours_poly[i]) );
+	  	  Bound[i].second=boundRect[i];
+	  	  Bound[i].first=contourArea(contours_poly[i]);
+	  	  minEnclosingCircle( (Mat)contours_poly[i], center[i], radius[i] );
+
+     }
+  sort(Bound.begin(),Bound.end(),cmp);
+  int size=(int) Bound.size();/// Draw polygonal contour + bonding rects + circles
+  drawing = Mat::zeros( threshold_output.size(), CV_8UC3 );
+  Point headpoint;int maxi=3;
+  sort(Bound.begin(),Bound.end(),cmp);
+  for(int j=size-1;j>=0 and maxi;j--)
+  	  for( int i = 0; i< (int)contours.size(); i++ )
+  		  	  if(Bound[j].second==boundRect[i] and checkinside(boundRect[i]))
+  		  	  {
+  		  		  	  	  	  if(Bound[j].first>800.0)
+  		  		  	  	  		  boundrectangle.push_back(Bound[j]);
+  		  		  	  	  	  maxi--;
+  		  		  	  	  	  if(Bound[j].first>800.0)
+  		  		  	  	  		  contours_polygone.push_back(contours_poly[i]);
+  		  		  	  	  	  break;
+  		  	  }
+  	sort(boundrectangle.begin(),boundrectangle.end(),cmp2);
+
+
+	for( int i = 0; i< (int)boundrectangle.size(); i++ )
+	{
+
+
+		  		  Point P,P1,P2;
+		  		  P=boundrectangle[i].second.tl();
+		  		  P1=boundrectangle[i].second.br();
+		  		  P2.x=(P1.x+P.x)/2.0;
+		  		  P2.y=(P1.y+P.y)/2.0;
+		  		  Scalar colorB = Scalar(255,0,0);Scalar colorG = Scalar(0,255,0);Scalar colorR = Scalar(0,0,255);
+		  		  Scalar colorRI = Scalar(255,255,0);Scalar colorL = Scalar(0,255,255);
+		  		  Scalar colorO = Scalar(255,255,255);
+		  		  Scalar color;
+		  		  if(i==0)
+		  		  {
+
+		  			measure_particlefilter(P2.x,P2.y,condensH);
+		  			color=colorG;
+
+
+		  		  }
+		  		  else
+		  		  {
+		  			          if(boundrectangle.size()==2)
+		  			          {
+		  			        	  color=colorO;
+		  			        	measure_particlefilter(P2.x,P2.y,condensL);
+		  			        	measure_particlefilter(P2.x,P2.y,condensR);
+		  			          }
+		  			          else
+		  			          {
+		  			        	  int add=(i==2)?-1:1;
+		  			        	  if(boundrectangle[i].second.tl().x>boundrectangle[i+add].second.tl().x)
+		  			        	  {	  	  	  	  	  color=colorRI;
+
+		  			        	  }
+		  			        	  else
+		  			        	  {  	  color=colorO;
+
+		  			        	  }
+
+		  			          }
+		  		  }
+		  		  drawContours( drawing, contours_polygone, i, colorB, -1, 8, vector<Vec4i>(), 0, Point() );
+		  		  rectangle( drawing, boundrectangle[i].second.tl(), boundrectangle[i].second.br(), color, 2, 8, 0 );
+		  		 // MyFilledCircle(drawing,P2,1);
+		 }
+	cout<<endl;
+  Mat output;
+  removekeypoints();
+  drawKeypoints(drawing, keypoints, output);
+  namedWindow( "Contours", CV_WINDOW_AUTOSIZE );/// Show in a window
+  imshow( "Contours", output );
+  inside.clear();
+}

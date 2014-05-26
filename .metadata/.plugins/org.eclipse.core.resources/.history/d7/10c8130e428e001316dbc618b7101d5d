@@ -1,0 +1,218 @@
+#include "opencv2/highgui/highgui.hpp"
+#include "opencv2/imgproc/imgproc.hpp"
+#include <iostream>
+#include <stdio.h>
+
+using namespace std;
+using namespace cv;
+
+/**
+ * @function main
+ */
+int main( int argc, char** argv )
+{
+  Mat src, dst;
+
+  /// Load image
+  src = imread( argv[1], 1 );
+
+  if( !src.data )
+    { return -1; }
+
+  /// Separate the image in 3 places ( B, G and R )
+  vector<Mat> bgr_planes;
+  split( src, bgr_planes );
+
+  /// Establish the number of bins
+  int histSize = 256;
+
+  /// Set the ranges ( for B,G,R) )
+  float range[] = { 0, 256 } ;
+  const float* histRange = { range };
+
+  bool uniform = true; bool accumulate = false;
+
+  Mat b_hist, g_hist, r_hist;
+
+  /// Compute the histograms:
+  calcHist( &bgr_planes[0], 1, 0, Mat(), b_hist, 1, &histSize, &histRange, uniform, accumulate );
+  calcHist( &bgr_planes[1], 1, 0, Mat(), g_hist, 1, &histSize, &histRange, uniform, accumulate );
+  calcHist( &bgr_planes[2], 1, 0, Mat(), r_hist, 1, &histSize, &histRange, uniform, accumulate );
+
+  // Draw the histograms for B, G and R
+  int hist_w = 512; int hist_h = 400;
+  int bin_w = cvRound( (double) hist_w/histSize );
+
+  Mat histImage( hist_h, hist_w, CV_8UC3, Scalar( 0,0,0) );
+
+  /// Normalize the result to [ 0, histImage.rows ]
+  normalize(b_hist, b_hist, 0, histImage.rows, NORM_MINMAX, -1, Mat() );
+  normalize(g_hist, g_hist, 0, histImage.rows, NORM_MINMAX, -1, Mat() );
+  normalize(r_hist, r_hist, 0, histImage.rows, NORM_MINMAX, -1, Mat() );
+
+  /// Draw for each channel
+  for( int i = 1; i < histSize; i++ )
+  {
+      line( histImage, Point( bin_w*(i-1), hist_h - cvRound(b_hist.at<float>(i-1)) ) ,
+                       Point( bin_w*(i), hist_h - cvRound(b_hist.at<float>(i)) ),
+                       Scalar( 255, 0, 0), 2, 8, 0  );
+      line( histImage, Point( bin_w*(i-1), hist_h - cvRound(g_hist.at<float>(i-1)) ) ,
+                       Point( bin_w*(i), hist_h - cvRound(g_hist.at<float>(i)) ),
+                       Scalar( 0, 255, 0), 2, 8, 0  );
+      line( histImage, Point( bin_w*(i-1), hist_h - cvRound(r_hist.at<float>(i-1)) ) ,
+                       Point( bin_w*(i), hist_h - cvRound(r_hist.at<float>(i)) ),
+                       Scalar( 0, 0, 255), 2, 8, 0  );
+  }
+
+  /// Display
+  namedWindow("calcHist Demo", CV_WINDOW_AUTOSIZE );
+  imshow("calcHist Demo", histImage );
+
+  waitKey(0);
+
+  return 0;
+}
+
+
+/*
+#include "opencv2/imgproc/imgproc.hpp"
+#include "opencv2/highgui/highgui.hpp"
+
+#include <iostream>
+
+using namespace cv;
+using namespace std;
+
+/// Global Variables
+Mat src; Mat hsv;
+Mat mask;
+Mat src_gray;
+Mat dst, detected_edges;
+
+int lo = 20; int up = 20;
+/*
+#ifdef _CH_
+#pragma package
+#endif
+#ifndef _CH_*/
+// motion templates sample code
+/*
+const char* window_image = "Source image";
+int edgeThresh = 1;
+int lowThreshold=25;
+int const max_lowThreshold = 100;
+int ratio = 3;
+int kernel_size = 3;
+char* window_name = "Edge Map";/// Function Headers
+void Hist_and_Backproj( );
+void pickPoint (int event, int x, int y, int, void* );
+
+/**
+ * @function main
+ */
+void CannyThreshold(int, void*)
+{
+  /// Reduce noise with a kernel 3x3
+  blur( src_gray, detected_edges, Size(3,3) );
+
+  /// Canny detector
+  Canny( detected_edges, detected_edges, lowThreshold, lowThreshold*ratio, kernel_size );
+
+  /// Using Canny's output as a mask, we display our result
+  dst = Scalar::all(0);
+
+  src.copyTo( dst, detected_edges);
+  imshow( window_name, dst );
+ }
+bool R3(float H, float S, float V) {
+	//out<<H<<" "<<S<<" "<<V<<endl;
+	//return (H<25 ||H>230);
+    return ((H<25) || (H > 230)) and (((S*360)>38 and (S*360)<250) and (V>51 and V<242));
+}
+int main( int, char** argv )
+{
+  /// Read the image
+	//VideoCapture cap("/home/mac/Documents/PROJECT/NewDataSets/krithika/thankyou_k.wmv");
+  VideoCapture cap(0);
+	//src = imread( argv[1], 1 );
+while(cap.read(src))
+{
+  /// Transform it to HSV
+  cvtColor( src, hsv, COLOR_BGR2HSV );
+
+  /// Show the image
+  namedWindow( window_image, WINDOW_AUTOSIZE );
+  imshow( window_image, src );
+
+  /// Set Trackbars for floodfill thresholds
+  createTrackbar( "Low thresh", window_image, &lo, 255, 0 );
+  createTrackbar( "High thresh", window_image, &up, 255, 0 );
+  /// Set a Mouse Callback
+  //Hist_and_Backproj( );
+ // pickPoint();
+  setMouseCallback( window_image, pickPoint, 0 );
+
+  waitKey(20);
+
+}return 0;
+}
+
+/**
+ * @function pickPoint
+ */
+void pickPoint (int event, int x, int y, int, void* )
+{
+  if( event != EVENT_LBUTTONDOWN )
+    { return; }
+
+  // Fill and get the mask
+ // x=200;y=200;
+  Point seed = Point( x, y );
+
+  int newMaskVal = 255;
+  Scalar newVal = Scalar( 120, 120, 120 );
+
+  int connectivity = 8;
+  int flags = connectivity + (newMaskVal << 8 ) + FLOODFILL_FIXED_RANGE + FLOODFILL_MASK_ONLY;
+
+  Mat mask2 = Mat::zeros( src.rows + 2, src.cols + 2, CV_8UC1 );
+  floodFill( src, mask2, seed, newVal, 0, Scalar( lo, lo, lo ), Scalar( up, up, up), flags );
+  mask = mask2( Range( 1, mask2.rows - 1 ), Range( 1, mask2.cols - 1 ) );
+
+  imshow( "Mask", mask );
+
+ Hist_and_Backproj( );
+}
+
+/**
+ * @function Hist_and_Backproj
+ */
+void Hist_and_Backproj( )
+{
+  MatND hist;
+  int h_bins = 30; int s_bins = 32;
+  int histSize[] = { h_bins, s_bins };
+
+  float h_range[] = { 0, 179 };
+  float s_range[] = { 0, 255 };
+  const float* ranges[] = { h_range, s_range };
+
+  int channels[] = { 0, 1 };
+
+  /// Get the Histogram and normalize it
+  calcHist( &hsv, 1, channels, mask, hist, 2, histSize, ranges, true, false );
+
+  normalize( hist, hist, 0, 255, NORM_MINMAX, -1, Mat() );
+
+  /// Get Backprojection
+  MatND backproj;
+  calcBackProject( &hsv, 1, channels, hist, backproj, ranges, 1, true );
+
+  /// Draw the backproj
+  //return backproj;
+  imshow( "BackProj", backproj );
+  src_gray=backproj;
+  CannyThreshold(0,0);
+
+}
+*/

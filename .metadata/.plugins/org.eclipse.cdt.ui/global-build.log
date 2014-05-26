@@ -1,0 +1,9 @@
+17:24:12 **** Incremental Build of configuration Debug for project Dimenstion4 ****
+make all 
+make: Nothing to be done for `all'.
+
+17:24:16 Build Finished (took 4s.295ms)
+
+17:24:18 **** Incremental Build of configuration Debug for project Dimenstion4 ****
+make all 
+make: Nothing to be done for `all'.

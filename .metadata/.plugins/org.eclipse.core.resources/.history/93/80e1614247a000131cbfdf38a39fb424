@@ -1,0 +1,51 @@
+#include <bits/stdc++.h>
+#include <vector>
+#include "GRT.h"
+#include <algorithm>
+#include "learn.h"
+
+void learn::setup(){
+
+
+    //Initialize the training and info variables
+    this->infoText = "";
+    this->trainingClassLabel = 1;
+    this->record = false;
+    //The input to the training data will be the [x y] from the mouse, so we set the number of dimensions to 2
+    this->trainingData.setNumDimensions( 2 );
+    this->trainingData.setDatasetName("Gesture_train");
+    this->trainingData.setInfoText("This data contains some Gesture timeseries data");
+
+    //Initialize the DTW classifier
+    DTW dtw;
+
+    //Turn on null rejection, this lets the classifier output the predicted class label of 0 when the likelihood of a gesture is low
+    dtw.enableNullRejection( true );
+
+    //Set the null rejection coefficient to 3, this controls the thresholds for the automatic null rejection
+    //You can increase this value if you find that your real-time gestures are not being recognized
+    //If you are getting too many false positives then you should decrease this value
+    dtw.setNullRejectionCoeff( 3 );
+
+    //Turn on the automatic data triming, this will remove any sections of none movement from the start and end of the training samples
+    dtw.enableTrimTrainingData(true, 0.1, 90);
+
+    //Offset the timeseries data by the first sample, this makes your gestures (more) invariant to the location the gesture is performed
+    dtw.setOffsetTimeseriesUsingFirstSample(true);
+
+    //Add the classifier to the pipeline (after we do this, we don't need the DTW classifier anymore)
+    //pipeline.setClassifier( dtw );
+}
+
+//--------------------------------------------------------------
+void learn::update(int mouseX,int mouseY){
+
+    //Grab the current mouse x and y position
+
+
+    //If we are recording training data, then add the current sample to the training data set
+
+
+}
+
+

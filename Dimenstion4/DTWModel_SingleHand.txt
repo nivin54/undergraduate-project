@@ -1,0 +1,116 @@
+GRT_DTW_Model_File_V1.0
+NumberOfDimensions: 2
+NumberOfClasses: 3
+NumberOfTemplates: 3
+DistanceMethod: 1
+UseNullRejection: 0
+UseSmoothing: 0
+SmoothingFactor: 5
+UseScaling: 0
+UseZNormalisation: 0
+OffsetUsingFirstSample: 0
+ConstrainWarpingPath: 1
+Radius: 0.2
+RejectionMode: 0
+NullRejectionCoeff: 3
+OverallAverageTemplateLength: 28
+Template: 1
+ClassLabel: 14
+TimeSeriesLength: 28
+TemplateThreshold: 420.313
+TrainingMu: 387.412
+TrainingSigma: 10.9669
+AverageTemplateLength: 33
+TimeSeries: 
+569	669	
+655	556	
+708	462	
+734	432	
+743	422	
+758	404	
+761	403	
+746	399	
+719	395	
+646	390	
+600	398	
+558	403	
+519	412	
+495	418	
+485	420	
+458	418	
+437	414	
+417	415	
+398	418	
+384	417	
+374	415	
+342	414	
+313	415	
+308	423	
+283	465	
+256	519	
+243	560	
+212	692	
+***************************
+
+Template: 2
+ClassLabel: 10
+TimeSeriesLength: 26
+TemplateThreshold: 638.404
+TrainingMu: 453.38
+TrainingSigma: 61.6747
+AverageTemplateLength: 25
+TimeSeries: 
+559	709	
+572	703	
+582	698	
+596	694	
+600	695	
+601	696	
+589	706	
+617	691	
+631	665	
+635	647	
+646	568	
+646	534	
+647	522	
+650	525	
+648	526	
+648	525	
+650	524	
+651	529	
+651	526	
+654	526	
+653	531	
+652	532	
+652	543	
+659	574	
+641	637	
+575	697	
+***************************
+
+Template: 3
+ClassLabel: 18
+TimeSeriesLength: 16
+TemplateThreshold: 2328.69
+TrainingMu: 1330.47
+TrainingSigma: 332.74
+AverageTemplateLength: 26
+TimeSeries: 
+469	102	
+472	107	
+469	100	
+473	108	
+472	108	
+472	106	
+471	106	
+463	97	
+440	89	
+361	96	
+298	126	
+270	141	
+206	246	
+185	401	
+225	587	
+292	691	
+***************************
+

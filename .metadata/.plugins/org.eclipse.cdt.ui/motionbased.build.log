@@ -1,0 +1,12 @@
+10:12:32 **** Build of configuration Debug for project motionbased ****
+make all 
+Building target: motionbased
+Invoking: GCC C++ Linker
+g++ -L/usr/lib/x86_64-linux-gnu/ -L/usr/local/lib -o "motionbased"  ./src/motionbased.o   -lopencv_core -lopencv_imgproc -lopencv_highgui -lopencv_ml -lopencv_video -lopencv_nonfree -lopencv_features2d -lopencv_calib3d -lopencv_objdetect -lopencv_contrib -lopencv_legacy -lopencv_flann
+/usr/bin/ld: ./src/motionbased.o: undefined reference to symbol 'pthread_join@@GLIBC_2.2.5'
+/lib/x86_64-linux-gnu/libpthread.so.0: error adding symbols: DSO missing from command line
+collect2: error: ld returned 1 exit status
+make: *** [motionbased] Error 1
+
+10:12:32 Build Finished (took 168ms)
+

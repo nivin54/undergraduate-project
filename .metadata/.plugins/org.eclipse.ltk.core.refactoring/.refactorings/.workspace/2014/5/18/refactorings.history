@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Delete resource &apos;Dimenstion4/DTWModel_DoubleHand.txt&apos;" deleteContents="false" description="Delete resource &apos;Dimenstion4/DTWModel_DoubleHand.txt&apos;" element1="/Dimenstion4/DTWModel_DoubleHand.txt" flags="7" id="org.eclipse.ltk.core.refactoring.delete.resources" resources="1" stamp="1398937329125"/>
+</session>

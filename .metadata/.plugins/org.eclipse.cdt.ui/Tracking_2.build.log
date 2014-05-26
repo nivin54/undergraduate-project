@@ -1,0 +1,22 @@
+11:23:22 **** Incremental Build of configuration Debug for project Tracking_2 ****
+make all 
+Building file: ../src/Tracking_2.cpp
+Invoking: GCC C++ Compiler
+g++ -I/usr/local/include/opencv -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"src/Tracking_2.d" -MT"src/Tracking_2.d" -o "src/Tracking_2.o" "../src/Tracking_2.cpp"
+../src/Tracking_2.cpp: In function ‘int main(int, char* const*)’:
+../src/Tracking_2.cpp:134:43: warning: comparison between signed and unsigned integer expressions [-Wsign-compare]
+       for (int i = 0; i < mouseV.size() - 1; i++) {
+                                           ^
+../src/Tracking_2.cpp:137:46: warning: comparison between signed and unsigned integer expressions [-Wsign-compare]
+       for (int i = 0; i < particleV.size() - 1; i++) {
+                                              ^
+Finished building: ../src/Tracking_2.cpp
+ 
+Building target: Tracking_2
+Invoking: GCC C++ Linker
+g++ -L/usr/local/lib -L/usr/lib/x86_64-linux-gnu/ -o "Tracking_2"  ./src/Tracking_2.o   -lopencv_core -lopencv_flann -lopencv_legacy -lopencv_contrib -lopencv_objdetect -lopencv_calib3d -lopencv_features2d -lopencv_ml -lopencv_video -lopencv_highgui -lopencv_imgproc -lopencv_nonfree
+Finished building target: Tracking_2
+ 
+
+11:23:24 Build Finished (took 1s.767ms)
+

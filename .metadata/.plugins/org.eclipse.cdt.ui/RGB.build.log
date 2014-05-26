@@ -1,0 +1,83 @@
+22:05:57 **** Build of configuration Debug for project RGB ****
+make all 
+Building file: ../src/Util/Cholesky.cpp
+Invoking: GCC C++ Compiler
+g++ -I/usr/local/include/opencv -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"src/Util/Cholesky.d" -MT"src/Util/Cholesky.d" -o "src/Util/Cholesky.o" "../src/Util/Cholesky.cpp"
+Finished building: ../src/Util/Cholesky.cpp
+ 
+Building file: ../src/Util/DebugLog.cpp
+Invoking: GCC C++ Compiler
+g++ -I/usr/local/include/opencv -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"src/Util/DebugLog.d" -MT"src/Util/DebugLog.d" -o "src/Util/DebugLog.o" "../src/Util/DebugLog.cpp"
+Finished building: ../src/Util/DebugLog.cpp
+ 
+Building file: ../src/Util/EigenvalueDecomposition.cpp
+Invoking: GCC C++ Compiler
+g++ -I/usr/local/include/opencv -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"src/Util/EigenvalueDecomposition.d" -MT"src/Util/EigenvalueDecomposition.d" -o "src/Util/EigenvalueDecomposition.o" "../src/Util/EigenvalueDecomposition.cpp"
+Finished building: ../src/Util/EigenvalueDecomposition.cpp
+ 
+Building file: ../src/Util/ErrorLog.cpp
+Invoking: GCC C++ Compiler
+g++ -I/usr/local/include/opencv -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"src/Util/ErrorLog.d" -MT"src/Util/ErrorLog.d" -o "src/Util/ErrorLog.o" "../src/Util/ErrorLog.cpp"
+Finished building: ../src/Util/ErrorLog.cpp
+ 
+Building file: ../src/Util/InfoLog.cpp
+Invoking: GCC C++ Compiler
+g++ -I/usr/local/include/opencv -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"src/Util/InfoLog.d" -MT"src/Util/InfoLog.d" -o "src/Util/InfoLog.o" "../src/Util/InfoLog.cpp"
+Finished building: ../src/Util/InfoLog.cpp
+ 
+Building file: ../src/Util/LUDecomposition.cpp
+Invoking: GCC C++ Compiler
+g++ -I/usr/local/include/opencv -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"src/Util/LUDecomposition.d" -MT"src/Util/LUDecomposition.d" -o "src/Util/LUDecomposition.o" "../src/Util/LUDecomposition.cpp"
+Finished building: ../src/Util/LUDecomposition.cpp
+ 
+Building file: ../src/Util/LabelledTimeSeriesClassificationSampleTrimmer.cpp
+Invoking: GCC C++ Compiler
+g++ -I/usr/local/include/opencv -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"src/Util/LabelledTimeSeriesClassificationSampleTrimmer.d" -MT"src/Util/LabelledTimeSeriesClassificationSampleTrimmer.d" -o "src/Util/LabelledTimeSeriesClassificationSampleTrimmer.o" "../src/Util/LabelledTimeSeriesClassificationSampleTrimmer.cpp"
+Finished building: ../src/Util/LabelledTimeSeriesClassificationSampleTrimmer.cpp
+ 
+Building file: ../src/Util/MatrixDouble.cpp
+Invoking: GCC C++ Compiler
+g++ -I/usr/local/include/opencv -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"src/Util/MatrixDouble.d" -MT"src/Util/MatrixDouble.d" -o "src/Util/MatrixDouble.o" "../src/Util/MatrixDouble.cpp"
+Finished building: ../src/Util/MatrixDouble.cpp
+ 
+Building file: ../src/Util/Node.cpp
+Invoking: GCC C++ Compiler
+g++ -I/usr/local/include/opencv -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"src/Util/Node.d" -MT"src/Util/Node.d" -o "src/Util/Node.o" "../src/Util/Node.cpp"
+Finished building: ../src/Util/Node.cpp
+ 
+Building file: ../src/Util/PeakDetection.cpp
+Invoking: GCC C++ Compiler
+g++ -I/usr/local/include/opencv -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"src/Util/PeakDetection.d" -MT"src/Util/PeakDetection.d" -o "src/Util/PeakDetection.o" "../src/Util/PeakDetection.cpp"
+In file included from ../src/Util/PeakDetection.h:12:0,
+                 from ../src/Util/PeakDetection.cpp:21:
+../src/Util/CircularBuffer.h: In instantiation of ‘bool GRT::CircularBuffer<T>::push_back(const T&) [with T = double]’:
+../src/Util/PeakDetection.cpp:86:49:   required from here
+../src/Util/CircularBuffer.h:222:9: warning: operation on ‘((GRT::CircularBuffer<double>*)this)->GRT::CircularBuffer<double>::writePtr’ may be undefined [-Wsequence-point]
+         writePtr = ++writePtr % bufferSize;
+         ^
+../src/Util/CircularBuffer.h:229:10: warning: operation on ‘((GRT::CircularBuffer<double>*)this)->GRT::CircularBuffer<double>::readPtr’ may be undefined [-Wsequence-point]
+          readPtr = ++readPtr % bufferSize;
+          ^
+../src/Util/CircularBuffer.h: In instantiation of ‘bool GRT::CircularBuffer<T>::push_back(const T&) [with T = unsigned int]’:
+../src/Util/PeakDetection.cpp:148:41:   required from here
+../src/Util/CircularBuffer.h:222:9: warning: operation on ‘((GRT::CircularBuffer<unsigned int>*)this)->GRT::CircularBuffer<unsigned int>::writePtr’ may be undefined [-Wsequence-point]
+         writePtr = ++writePtr % bufferSize;
+         ^
+../src/Util/CircularBuffer.h:229:10: warning: operation on ‘((GRT::CircularBuffer<unsigned int>*)this)->GRT::CircularBuffer<unsigned int>::readPtr’ may be undefined [-Wsequence-point]
+          readPtr = ++readPtr % bufferSize;
+          ^
+Finished building: ../src/Util/PeakDetection.cpp
+ 
+Building file: ../src/Util/RangeTracker.cpp
+Invoking: GCC C++ Compiler
+g++ -I/usr/local/include/opencv -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"src/Util/RangeTracker.d" -MT"src/Util/RangeTracker.d" -o "src/Util/RangeTracker.o" "../src/Util/RangeTracker.cpp"
+Finished building: ../src/Util/RangeTracker.cpp
+ 
+Building file: ../src/Util/SVD.cpp
+Invoking: GCC C++ Compiler
+g++ -I/usr/local/include/opencv -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"src/Util/SVD.d" -MT"src/Util/SVD.d" -o "src/Util/SVD.o" "../src/Util/SVD.cpp"
+make: *** [src/Util/SVD.o] Terminated
+Command canceled
+
+22:06:05 Build Cancelled (took 8s.761ms)
+

@@ -1,0 +1,29 @@
+12:37:11 **** Incremental Build of configuration Debug for project Motion_tracking ****
+make all 
+Building file: ../src/Sign_Particle.cpp
+Invoking: GCC C++ Compiler
+g++ -I/usr/local/include/opencv -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"src/Sign_Particle.d" -MT"src/Sign_Particle.d" -o "src/Sign_Particle.o" "../src/Sign_Particle.cpp"
+../src/Sign_Particle.cpp: In function ‘void MyCircle(cv::Mat&, cv::Point, int)’:
+../src/Sign_Particle.cpp:69:6: warning: unused variable ‘thickness’ [-Wunused-variable]
+  int thickness = -1;
+      ^
+../src/Sign_Particle.cpp:70:6: warning: unused variable ‘lineType’ [-Wunused-variable]
+  int lineType = 8;
+      ^
+../src/Sign_Particle.cpp: In function ‘int main(int, const char**)’:
+../src/Sign_Particle.cpp:107:25: warning: deprecated conversion from string constant to ‘char*’ [-Wwrite-strings]
+   char* source_window = "Source";
+                         ^
+../src/Sign_Particle.cpp:154:6: warning: unused variable ‘ch’ [-Wunused-variable]
+  int ch=0,single=1;
+      ^
+Finished building: ../src/Sign_Particle.cpp
+ 
+Building target: Motion_tracking
+Invoking: GCC C++ Linker
+g++ -L/usr/lib/x86_64-linux-gnu/ -L/usr/local/lib -o "Motion_tracking"  ./src/Sign_Particle.o ./src/findcontour.o ./src/predict.o ./src/skincolor.o   -lopencv_core -lopencv_imgproc -lopencv_highgui -lopencv_ml -lopencv_video -lopencv_nonfree -lopencv_features2d -lopencv_calib3d -lopencv_objdetect -lopencv_contrib -lopencv_legacy -lopencv_flann
+Finished building target: Motion_tracking
+ 
+
+12:37:12 Build Finished (took 1s.418ms)
+

@@ -1,0 +1,10 @@
+11:55:30 **** Incremental Build of configuration Debug for project Segmention(1_0) ****
+make all 
+Building target: Segmention
+Invoking: GCC C++ Linker
+g++ -L/usr/lib/x86_64-linux-gnu/ -L/usr/local/lib -o "Segmention(1_0)"  ./src/Segement(1_0).o   -lopencv_core -lopencv_imgproc -lopencv_highgui -lopencv_ml -lopencv_video -lopencv_features2d -lopencv_calib3d  -lopencv_objdetect -lopencv_contrib -lopencv_legacy -lopencv_flann
+/bin/sh: 1: Syntax error: "(" unexpected
+make: *** [Segmention(1_0)] Error 2
+
+11:55:30 Build Finished (took 65ms)
+

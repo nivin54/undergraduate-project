@@ -1,0 +1,11 @@
+#ifndef PREDICT
+#define PREDICT
+#include <bits/stdc++.h>
+#include <vector>
+#include "GRT.h"
+#include<algorithm>
+
+
+using namespace cv;
+using namespace std;
+using namespace GRT;

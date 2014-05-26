@@ -1,0 +1,13 @@
+23:39:01 **** Build of configuration Debug for project Blobsproject ****
+make all 
+Building file: ../src/Blobproject.cpp
+Invoking: GCC C++ Compiler
+g++ -I/usr/local/include/opencv -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"src/Blobproject.d" -MT"src/Blobproject.d" -o "src/Blobproject.o" "../src/Blobproject.cpp"
+../src/Blobproject.cpp:1:28: fatal error: opencv2/core.hpp: No such file or directory
+ #include "opencv2/core.hpp"
+                            ^
+compilation terminated.
+make: *** [src/Blobproject.o] Error 1
+
+23:39:01 Build Finished (took 208ms)
+

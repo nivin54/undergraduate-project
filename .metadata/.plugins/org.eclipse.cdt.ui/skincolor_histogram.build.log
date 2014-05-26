@@ -1,0 +1,15 @@
+23:13:22 **** Incremental Build of configuration Debug for project skincolor_histogram ****
+make all 
+Building file: ../src/skincolor_histogram.cpp
+Invoking: GCC C++ Compiler
+g++ -I/usr/local/include/opencv -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"src/skincolor_histogram.d" -MT"src/skincolor_histogram.d" -o "src/skincolor_histogram.o" "../src/skincolor_histogram.cpp"
+Finished building: ../src/skincolor_histogram.cpp
+ 
+Building target: skincolor_histogram
+Invoking: GCC C++ Linker
+g++ -L/usr/lib/x86_64-linux-gnu/ -L/usr/local/lib -o "skincolor_histogram"  ./src/skincolor_histogram.o   -lopencv_core -lopencv_imgproc -lopencv_highgui -lopencv_ml -lopencv_video -lopencv_nonfree -lopencv_features2d -lopencv_calib3d -lopencv_objdetect -lopencv_contrib -lopencv_legacy -lopencv_flann
+Finished building target: skincolor_histogram
+ 
+
+23:13:23 Build Finished (took 860ms)
+

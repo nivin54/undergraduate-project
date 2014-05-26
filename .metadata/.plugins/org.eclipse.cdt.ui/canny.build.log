@@ -1,0 +1,18 @@
+13:08:23 **** Incremental Build of configuration Debug for project canny ****
+make all 
+Building file: ../src/canny.cpp
+Invoking: GCC C++ Compiler
+g++ -I/usr/local/include/opencv -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"src/canny.d" -MT"src/canny.d" -o "src/canny.o" "../src/canny.cpp"
+../src/canny.cpp:24:21: warning: deprecated conversion from string constant to ‘char*’ [-Wwrite-strings]
+ char* window_name = "Edge Map";
+                     ^
+Finished building: ../src/canny.cpp
+ 
+Building target: canny
+Invoking: GCC C++ Linker
+g++ -L/usr/lib/x86_64-linux-gnu/ -L/usr/local/lib -o "canny"  ./src/canny.o   -lopencv_core -lopencv_imgproc -lopencv_highgui -lopencv_ml -lopencv_video -lopencv_nonfree -lopencv_features2d -lopencv_calib3d -lopencv_objdetect -lopencv_contrib -lopencv_legacy -lopencv_flann
+Finished building target: canny
+ 
+
+13:08:24 Build Finished (took 776ms)
+

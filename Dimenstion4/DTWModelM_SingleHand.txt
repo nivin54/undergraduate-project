@@ -1,0 +1,79 @@
+GRT_DTW_Model_File_V1.0
+NumberOfDimensions: 2
+NumberOfClasses: 2
+NumberOfTemplates: 2
+DistanceMethod: 1
+UseNullRejection: 0
+UseSmoothing: 0
+SmoothingFactor: 5
+UseScaling: 0
+UseZNormalisation: 0
+OffsetUsingFirstSample: 0
+ConstrainWarpingPath: 1
+Radius: 0.2
+RejectionMode: 0
+NullRejectionCoeff: 3
+OverallAverageTemplateLength: 16
+Template: 1
+ClassLabel: 7
+TimeSeriesLength: 34
+TemplateThreshold: 1448.7
+TrainingMu: 464.396
+TrainingSigma: 328.102
+AverageTemplateLength: 32
+TimeSeries: 
+416	642	
+435	573	
+493	413	
+546	323	
+493	285	
+478	287	
+436	295	
+400	304	
+374	318	
+355	337	
+341	350	
+342	355	
+338	370	
+336	384	
+336	392	
+335	395	
+334	398	
+335	398	
+334	397	
+326	397	
+306	400	
+272	414	
+249	428	
+240	441	
+202	472	
+171	509	
+149	547	
+140	571	
+140	575	
+143	573	
+142	562	
+133	559	
+90	587	
+65	687	
+***************************
+
+Template: 2
+ClassLabel: 4
+TimeSeriesLength: 9
+TemplateThreshold: 0
+TrainingMu: 0
+TrainingSigma: 0
+AverageTemplateLength: 0
+TimeSeries: 
+470	677	
+483	591	
+493	497	
+508	414	
+536	406	
+513	483	
+497	541	
+491	570	
+469	661	
+***************************
+

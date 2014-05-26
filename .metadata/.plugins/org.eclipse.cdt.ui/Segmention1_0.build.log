@@ -1,0 +1,42 @@
+16:38:59 **** Incremental Build of configuration Debug for project Segmention1_0 ****
+make all 
+Building file: ../src/Segement1_0.cpp
+Invoking: GCC C++ Compiler
+g++ -I/usr/local/include/opencv -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"src/Segement1_0.d" -MT"src/Segement1_0.d" -o "src/Segement1_0.o" "../src/Segement1_0.cpp"
+../src/Segement1_0.cpp: In function ‘void MyFilledCircle(cv::Mat, cv::Point, int)’:
+../src/Segement1_0.cpp:57:6: warning: unused variable ‘thickness’ [-Wunused-variable]
+  int thickness = -1;
+      ^
+../src/Segement1_0.cpp:58:6: warning: unused variable ‘lineType’ [-Wunused-variable]
+  int lineType = 8;
+      ^
+../src/Segement1_0.cpp: In function ‘int Kalman_adjust(cv::Point, int, cv::KalmanFilter&)’:
+../src/Segement1_0.cpp:86:1: warning: no return statement in function returning non-void [-Wreturn-type]
+ }
+ ^
+../src/Segement1_0.cpp: In function ‘int main(int, const char**)’:
+../src/Segement1_0.cpp:125:25: warning: deprecated conversion from string constant to ‘char*’ [-Wwrite-strings]
+   char* source_window = "Source";
+                         ^
+Finished building: ../src/Segement1_0.cpp
+ 
+Building file: ../src/skincolor.cpp
+Invoking: GCC C++ Compiler
+g++ -I/usr/local/include/opencv -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"src/skincolor.d" -MT"src/skincolor.d" -o "src/skincolor.o" "../src/skincolor.cpp"
+../src/skincolor.cpp: In function ‘cv::Mat GetSkin(const cv::Mat&)’:
+../src/skincolor.cpp:46:18: warning: unused variable ‘a’ [-Wunused-variable]
+             bool a = R1(R,G,B);
+                  ^
+../src/skincolor.cpp:34:11: warning: variable ‘cwhite’ set but not used [-Wunused-but-set-variable]
+     Vec3b cwhite = Vec3b::all(255);// cover the whole value range of [0,255], so there's
+           ^
+Finished building: ../src/skincolor.cpp
+ 
+Building target: Segmention1_0
+Invoking: GCC C++ Linker
+g++ -L/usr/lib/x86_64-linux-gnu/ -L/usr/local/lib -o "Segmention1_0"  ./src/Segement1_0.o ./src/skincolor.o   -lopencv_core -lopencv_imgproc -lopencv_highgui -lopencv_ml -lopencv_video -lopencv_nonfree -lopencv_features2d -lopencv_calib3d  -lopencv_objdetect -lopencv_contrib -lopencv_legacy -lopencv_flann
+Finished building target: Segmention1_0
+ 
+
+16:39:01 Build Finished (took 2s.576ms)
+

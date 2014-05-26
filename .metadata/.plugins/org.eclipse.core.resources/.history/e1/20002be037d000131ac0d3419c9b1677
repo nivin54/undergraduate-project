@@ -1,0 +1,596 @@
+/*
+ * Segement(1_0).cpp
+ *
+ *  Created on: 03-Jan-2014
+ *      Author: mac
+ */
+#include <opencv2/core/core.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
+#include <opencv2/highgui/highgui.hpp>
+#include <opencv2/video/tracking.hpp>
+#include <opencv2/nonfree/features2d.hpp>
+#include <opencv2/objdetect/objdetect.hpp>
+#include <opencv2/legacy/legacy.hpp>
+#include <opencv2/video/background_segm.hpp>
+#include "flandmark_detector.h"
+#include <bits/stdc++.h>
+#include <vector>
+#include <algorithm>
+#include "skincolor.h"
+#include "predict.h"
+#include "learn.h"
+#include "findcontour.h"
+#include <X11/Xlib.h>
+#include <X11/Xutil.h>
+#include "GRT.h"
+#include "label.h"
+#include "findcontour.h"
+#define PI 3.14159265
+using namespace cv;
+using namespace std;
+using namespace GRT;
+
+
+FLANDMARK_Model * model = flandmark_init("/home/mac/workspace/flandmark-master/data/flandmark_model.dat");
+int bbox[10];
+bool trackstart,trackstop;
+//trackstart=trackstop=false;
+Point location[3][2];
+Point aa,bb,cc;
+double collideframe=0,anglesum=0;
+
+
+
+struct mouse_info_struct { int x,y; };
+struct mouse_info_struct mouse_info = {-1,-1}, last_mouse;
+
+vector<Point> mousev,kalmanv;
+
+
+void on_mouse(int event, int x, int y, int flags, void* param) {
+		last_mouse = mouse_info;
+		mouse_info.x = x;
+		mouse_info.y = y;
+
+}
+Point face;
+
+//This function returns the square of the euclidean distance between 2 points.
+Mat src, src_gray,skin1,drawing,skin,skin2,framegray;
+Point L,R,H;
+int dim = 2, nParticles = 100,Occ=0;
+RNG rng(12345);
+vector<Point> mouseV, particleV;
+CvConDensation* condensH = cvCreateConDensation(dim, dim, nParticles);
+CvConDensation* condensL = cvCreateConDensation(dim, dim, nParticles);
+CvConDensation* condensR = cvCreateConDensation(dim, dim, nParticles);
+long long int noframes;
+
+void MyCircle( Mat &img, Point center,int color )
+{
+ int thickness = -1;
+ int lineType = 8;
+ circle(img,center,5.50,Scalar(0,255*color,255),-1,8,0);
+
+}
+MatrixDouble feature_extraction(vector<Point> P,UINT DIM)
+{
+
+	VectorDouble datas(DIM);
+	MatrixDouble feature;
+	float cx,cy;
+	int sz=P.size();
+	for(int i=0;i<sz;i++)
+	{
+		cx+=P[i].x;
+		cy+=P[i].y;
+	}
+	cx=cx/sz;cy=cy/sz;
+	for(int i=0;i<sz;i++)
+	{
+			datas[0]=atan2((P[i+1].y-cy),(P[i+1].x-cx))* 180 / PI;
+			datas[1]=atan2((P[i+1].y-P[i].y),(P[i+1].x-P[i].x))* 180 / PI;
+			datas[2]=atan2((P[i+1].y-P[0].y),(P[i+1].x-P[0].x))* 180 / PI;
+			for(int j=0;j<3;j++)if(datas[j]<0) datas[j]+=360;
+			datas[3]=sqrt(pow((P[i+1].x-P[i].x),2)+pow((P[i+1].y-P[i].y),2));
+			cout<<i<<" "<<datas[0]<<" "<<datas[1]<<" "<<datas[2]<<" "<<datas[3]<<endl;
+			feature.push_back(datas);
+	}
+	cout<<"OVER"<<sz<<endl;
+	return feature;
+}
+int FM(Mat framegray,Mat frame,mapskeleton human,Mat skin1)
+{
+	double *landmarks=(double*)malloc(2*model->data.options.M*sizeof(double));;
+	IplImage *dst_img;
+	dst_img = cvCreateImage(cvSize(framegray.cols,framegray.rows), IPL_DEPTH_8U, 1);
+	memcpy(dst_img->imageData, framegray.data, framegray.cols*framegray.rows);
+	flandmark_detect(dst_img, bbox, model, landmarks);
+	Mat myMat(dst_img);
+	//imshow("Fland",skin1);
+	Mat skin1_gray,cdst,dst,dstg;
+	cvtColor(skin1,skin1_gray,CV_BGR2GRAY);
+	skin1_gray=CannyThreshold(0, 0,skin1,skin1_gray);
+	cvtColor(skin1_gray, dst, CV_BGR2GRAY);
+	cvtColor(skin1, dstg, CV_BGR2GRAY);
+	cvtColor(dst,cdst,CV_GRAY2BGR);
+	Mat canny_output;
+	vector<vector<Point> > contours;
+	vector<Vec4i> hierarchy;
+	findContours( dst, contours, hierarchy, CV_RETR_TREE, CV_CHAIN_APPROX_SIMPLE, Point(0, 0) );
+	vector<vector<Point> > contours_poly( contours.size() );
+	int thresh = 100,max_thresh = 255;
+	RNG rng(12345);
+				  /// Draw contours
+	Mat drawing = Mat::zeros( canny_output.size(), CV_8UC3 );
+	vector<vector<Point> >hull(contours_poly.size());
+	for( int i = 0; i< contours.size(); i++ )
+	{
+				       Scalar color = Scalar( 255, 0, 255 );
+				       approxPolyDP( Mat(contours[i]), contours_poly[i], 3, true );
+				       drawContours( dst, contours_poly, i, color, 2, 8, hierarchy, 0, Point() );
+				       convexHull( Mat(contours_poly[i]), hull[i], false );
+
+	}
+	cvtColor(dst,cdst,CV_GRAY2BGR);
+	Point Downmost;
+	for (int i = 2; i < 2*model->data.options.M; i += 2)
+				  			 MyFilledCircle(cdst,Point (landmarks[i],landmarks[i+1]),1);
+	bb=Point(landmarks[14],landmarks[15]);
+	int facearea,face;
+	facearea=abs(human.facetl.x-human.facebr.x)*abs(human.facetl.y-human.facebr.y);
+	face=abs(location[1][0].x-location[1][1].x)*abs(location[1][0].y-abs(location[1][1].y));
+	Downmost=human.face;
+	if(face-facearea>3500)
+	{
+		Occ++;
+		    MyFilledCircle( cdst, location[1][0],0 );
+		    MyFilledCircle( cdst, location[1][1],0 );
+		    for(int i=0;i< hull.size();i++)
+		    {
+		    			  	  					int n=hull[i].size();
+		    			  	  		  			for(int j=0;j<hull[i].size();j++)
+		    			  	  		  				if(hull[i][j].x<Downmost.x and (hull[i][j].y>human.facebr.y+5 or hull[i][j].x<(human.facetl.x) ) )
+		    			  	  		  						Downmost=hull[i][j];
+		    }
+		    if(trackstart==false)
+		    		{cc=aa=Downmost;trackstart=true;}
+		    else{
+		    cc=Downmost;
+		    anglesum+=angle(cc,bb,aa);
+		    collideframe+=1;
+		    return angle(cc,bb,aa);
+		    }
+ 	 }
+imshow("Contours",cdst);
+
+
+}
+
+
+
+
+
+
+
+
+string name[50]={"Zero_Class","Air","Book","Moon","Mother","Father","Brother","Sister","Boy","Girl","Money","I","Food","Friend","Pen","Pencil","Sorry","ThankYou","Water","Bag"};
+
+int main(int argc, const char *argv[])
+{
+
+
+
+	VideoCapture cap("/home/mac/Documents/PROJECT/Training_Sets/new dataset/divya_money (1).mp4");
+	noframes=1;
+	Mat3b frame;
+	LabelledTimeSeriesClassificationData trainingData,testData;
+    trainingData.setNumDimensions( 2 );
+    vector<double>  Angles;
+	trainingData.setDatasetName("DummyData");
+    trainingData.setInfoText("This data contains some dummy timeseries data");
+	UINT gestureLabel = 5;
+	MatrixDouble trainingSample;
+	vector<Point> coordinate;
+	DTW dtws,dtwd,dtwm,dtwf;
+	mapskeleton human;
+
+	int options,hands_count=0;
+	cout<<"Enter the options "<<endl;
+	cout<<"1 Training Mode "<<endl;
+	cout<<"2 Recognize Gesture "<<endl;
+	cin>>options;
+	double dWidth = cap.get(CV_CAP_PROP_FRAME_WIDTH); //get the width of frames of the video
+	double dHeight = cap.get(CV_CAP_PROP_FRAME_HEIGHT); //get the height of frames of the video
+	Size frameSize(static_cast<int>(dWidth), static_cast<int>(dHeight));
+	VideoWriter oVideoWriter ("/home/mac/Documents/PROJECT/Output/Paper/pent.avi", CV_FOURCC('P','I','M','1'), 20, frameSize, true); //initialize the VideoWriter object
+	VideoWriter oVideoWriter2 ("/home/mac/Documents/PROJECT/Output/Paper/penq.avi", CV_FOURCC('P','I','M','1'), 20, frameSize, true); //initialize the VideoWriter object
+	//VideoWriter oVideoWriter2 ("/home/mac/Documents/PROJECT/Output/Paper/bosn1t.avi", CV_FOURCC('P','I','M','1'), 20, frameSize, true); //initialize the VideoWriter object
+	//VideoWriter oVideoWriter3 ("/home/mac/Documents/PROJECT/Output/Paper/bos1t.avi", CV_FOURCC('P','I','M','1'), 20, frameSize, true); //initialize the VideoWriter object
+	//VideoWriter oVideoWriter4 ("/home/mac/Documents/PROJECT/Output/Paper/bosegmentinblue.avi", CV_FOURCC('P','I','M','1'), 20, frameSize, true); //initialize the VideoWriter object
+	//VideoWriter oVideoWriter5 ("/home/mac/Documents/PROJECT/Output/Paper/botag.avi", CV_FOURCC('P','I','M','1'), 20, frameSize, true); //initialize the VideoWriter object
+
+
+	Mat trace = Mat::zeros( Size(dWidth,dHeight), CV_8UC3 );
+	learn L;
+	if(options==1)
+	{
+		L.record=true;
+		cout<<"Enter the Gesture [0 to 99] that needs to trained";
+		//cin>>L.trainingClassLabel; //I am telling the label to which data belongs
+	}
+	else
+		L.record=false;
+
+	VectorDouble head;bool flag=true;
+	while(cap.read(frame ) and (options==1 or options==2))
+	{
+
+		oVideoWriter2.write(frame);
+		noframes+=1;
+		//if(noframes<5) continue;
+		Mat final;
+		cvtColor(frame,framegray,CV_RGB2GRAY);
+		skin = GetSkin(frame);
+
+		cvtColor(skin,skin,CV_RGB2GRAY);
+		skin1 = skin> 50;
+		//oVideoWriter3.write(skin1);
+		//imshow("Kill",skin1);
+		blur( skin1, skin1, Size(3,3) );
+		char* source_window = "Source";
+		src_gray=skin1;
+		Mat output;
+		Point array[3],dime[3];int sz=0;
+		Mat locate;
+		final=skin1=draw_contour(src_gray,array,sz,dime,frame,location,locate);
+		imshow("segmented",locate);
+		//oVideoWriter4.write(locate);
+
+		if(sz and !human.facefixed)
+		{
+			human.facefixed=true;
+			human.face=array[0];
+			human.facel=dime[0];
+			bbox[0]=location[0][0].x;
+			bbox[1]=location[0][0].y;
+			bbox[2]=location[0][1].x;
+			bbox[3]=location[0][1].y;
+			human.facetl=location[0][0];
+			human.facebr=location[0][1];
+
+
+		}
+
+		human.face_map(array,dime,sz,skin1,location);
+		imshow("Tagged",skin1);
+		//Start
+		double *landmarks=(double*)malloc(2*model->data.options.M*sizeof(double));;
+			IplImage *dst_img;
+			dst_img = cvCreateImage(cvSize(framegray.cols,framegray.rows), IPL_DEPTH_8U, 1);
+			memcpy(dst_img->imageData, framegray.data, framegray.cols*framegray.rows);
+			flandmark_detect(dst_img, bbox, model, landmarks);
+			Mat myMat(dst_img);
+			//imshow("Fland",skin1);
+			Mat skin1_gray,cdst,dst,dstg;
+			cvtColor(skin1,skin1_gray,CV_BGR2GRAY);
+			skin1_gray=CannyThreshold(0, 0,skin1,skin1_gray);
+			cvtColor(skin1_gray, dst, CV_BGR2GRAY);
+			cvtColor(skin1, dstg, CV_BGR2GRAY);
+			cvtColor(dst,cdst,CV_GRAY2BGR);
+			Mat canny_output;
+			vector<vector<Point> > contours;
+			vector<Vec4i> hierarchy;
+			findContours( dst, contours, hierarchy, CV_RETR_TREE, CV_CHAIN_APPROX_SIMPLE, Point(0, 0) );
+			vector<vector<Point> > contours_poly( contours.size() );
+			int thresh = 100,max_thresh = 255;
+			RNG rng(12345);
+						  /// Draw contours
+			Mat drawing = Mat::zeros( canny_output.size(), CV_8UC3 );
+			vector<vector<Point> >hull(contours_poly.size());
+			for( int i = 0; i< contours.size(); i++ )
+			{
+						       Scalar color = Scalar( 255, 0, 255 );
+						       approxPolyDP( Mat(contours[i]), contours_poly[i], 3, true );
+						       drawContours( dst, contours_poly, i, color, 2, 8, hierarchy, 0, Point() );
+						       convexHull( Mat(contours_poly[i]), hull[i], false );
+
+			}
+			cvtColor(dst,cdst,CV_GRAY2BGR);
+			Point Downmost;
+			for (int i = 2; i < 2*model->data.options.M; i += 2)
+						  			 MyFilledCircle(cdst,Point (landmarks[i],landmarks[i+1]),1);
+			bb=Point(landmarks[14],landmarks[15]);
+			int facearea,face;
+			facearea=abs(human.facetl.x-human.facebr.x)*abs(human.facetl.y-human.facebr.y);
+			face=abs(location[1][0].x-location[1][1].x)*abs(location[1][0].y-abs(location[1][1].y));
+			Downmost=human.face;
+			if(face-facearea>3500)
+			{
+					Occ++;
+				    MyFilledCircle( cdst, location[1][0],0 );
+				    MyFilledCircle( cdst, location[1][1],0 );
+				    for(int i=0;i< hull.size();i++)
+				    {
+				    			  	  					int n=hull[i].size();
+				    			  	  		  			for(int j=0;j<hull[i].size();j++)
+				    			  	  		  				if(hull[i][j].x<Downmost.x and (hull[i][j].y>human.facebr.y+5 or hull[i][j].x<(human.facetl.x) ) )
+				    			  	  		  						Downmost=hull[i][j];
+				    }
+				    if(trackstart==false)
+				    		{cc=aa=Downmost;trackstart=true;}
+				    else{
+				    cc=Downmost;
+				   // anglesum+=angle(cc,bb,aa);
+				    //coll/home/mac/Documents/PROJECT/Training_Sets/divya_dad (3).mp4ideframe+=1;
+				    MyFilledCircle(cdst,Downmost,1);
+				    Angles.push_back(angle(cc,bb,aa));
+
+				    }
+		 	 }
+			//imshow("contour",cdst);
+			Mat Finalout;
+			bitwise_or(cdst,final,Finalout);
+			imshow("Actual",Finalout);
+			//oVideoWriter1.write(Finalout);
+
+
+		//Stop
+		//cout<<FM(framegray,frame,human,skin1)<<endl;
+		if(sz>1)
+		{
+			MyCircle(trace,array[0],0);
+
+			imshow("draw",trace);
+			oVideoWriter.write(trace);
+		}
+		Point aux;
+
+
+
+
+		skin2=frame;
+
+		blur( skin1, skin1, Size( 5, 5 ) );
+		//imshow(source_window, skin1);
+
+		if(sz>2) hands_count++;
+		if(sz>1)
+		{VectorDouble sample(2);sample[0] = array[0].x;sample[1] = array[0].y;trainingSample.push_back(sample);}
+		waitKey(50);
+		//cout<<hands_count<<endl;
+	}
+	//cout<<"It's over "<<endl;
+	int sizeangle=Angles.size();
+	int percent=sizeangle/5;
+	sort(Angles.begin(),Angles.end());
+
+	for(int i=percent;i<Angles.size()-percent;i++)
+	{
+		//cout<<Angles[i]<<endl;
+		 anglesum+=Angles[i];
+		 collideframe+=1;
+	}
+
+
+	double average;
+	//trainingSample=feature_extraction(coordinate,4);
+	destroyAllWindows();
+	int ch=0,single=1;
+	if(hands_count>=5)
+			single++;
+	if(Occ>=3)
+			single+=2;
+	cout<<"Singe"<<single;
+	if(single>2 and collideframe)
+		average=anglesum/collideframe;
+
+	cout<<"Hand number "<<single<<endl;
+	if(single==1)
+	{
+		if(options==1 )
+		{
+		cout<<"You want to save it "<<endl;
+		cin>>ch;
+		}
+		if( trainingData.loadDatasetFromFile("TrainingData_SingleHand.txt") );
+		if(ch==1 and options==1)
+		{
+				//After recording your training data you can then save it to a file
+				 //Load the data then save the file into it.
+				trainingData.addSample(gestureLabel,trainingSample);
+				if( trainingData.saveDatasetToFile( "TrainingData_SingleHand.txt" ) )
+							cout << "Training data saved to file\n";
+		}
+
+		if(options==2)
+		{
+
+		//dtw.enableTrimTrainingData(true,0.1,90);
+
+			//dtws.enableZNormalization( true );
+			dtws.train(trainingData);
+			if( !dtws.saveModelToFile("DTWModel_SingleHand.txt") ){
+		        cout << "Failed to save the classifier model!\n";
+		        return EXIT_FAILURE;
+		    }
+			cout<<"42"<<endl;
+		    //Load the DTW model from a file
+		    if( !dtws.loadModelFromFile("DTWModel_SingleHand.txt") ){
+		        cout << "Failed to load the classifier model!\n";
+		        return EXIT_FAILURE;
+		    }
+
+		    //MatrixDouble timeseries = trainingSample;
+		    if( !dtws.predict( trainingSample ) )
+		    {
+		               cout << "Failed to perform prediction for test sampel: "  <<"\n";
+		               return EXIT_FAILURE;
+		     }
+		      UINT predictedClassLabel = dtws.getPredictedClassLabel();
+		      double maximumLikelihood = dtws.getMaximumLikelihood();
+		      VectorDouble classLikelihoods = dtws.getClassLikelihoods();
+		      VectorDouble classDistances = dtws.getClassDistances();
+		      cout << "TestSample: "  <<  "\tClassLabel: " << 1 << "\tPredictedClassLabel: " << predictedClassLabel << "\tMaximumLikelihood: " << maximumLikelihood << endl;
+		      cout<<"Gesture Signature "<<name[predictedClassLabel]<<endl;
+	}
+	}
+	else if(single==2 or single==4)
+	{
+
+				if(options==1)
+					{
+						cout<<"You want to save it "<<endl;
+						cin>>ch;
+					}
+				if( trainingData.loadDatasetFromFile("TrainingData_DoubleHand.txt") );
+				if(ch==1 )
+				{
+						//After recording your training data you can then save it to a file
+						 //Load the data then save the file into it.
+						trainingData.addSample(gestureLabel,trainingSample);
+						if( trainingData.saveDatasetToFile( "TrainingData_DoubleHand.txt" ) )
+									cout << "Training data saved to file\n";
+				}
+
+				if(options==2)
+				{
+
+				//dtw.enableTrimTrainingData(true,0.1,90);
+
+				//dtwd.enableZNormalization( true );
+					//dtwd. enableNullRejection( true );
+					dtwd.train(trainingData);
+					if( !dtwd.saveModelToFile("DTWModel_DoubleHand.txt") ){
+				        cout << "Failed to save the classifier model!\n";
+				        return EXIT_FAILURE;
+				    }
+					cout<<"42"<<endl;
+				    //Load the DTW model from a file
+				    if( !dtwd.loadModelFromFile("DTWModel_DoubleHand.txt") ){
+				        cout << "Failed to load the classifier model!\n";
+				        return EXIT_FAILURE;
+				    }
+
+				    //MatrixDouble timeseries = trainingSample;
+				    if( !dtwd.predict( trainingSample ) )
+				    {
+				               cout << "Failed to perform prediction for test sampel: "  <<"\n";
+				               return EXIT_FAILURE;
+				     }
+				      UINT predictedClassLabel = dtwd.getPredictedClassLabel();
+				      double maximumLikelihood = dtwd.getMaximumLikelihood();
+				      VectorDouble classLikelihoods = dtwd.getClassLikelihoods();
+				      VectorDouble classDistances = dtwd.getClassDistances();
+				      cout << "TestSample: "  <<  "\tClassLabel: " << 1 << "\tPredictedClassLabel: " << predictedClassLabel << "\tMaximumLikelihood: " << maximumLikelihood << endl;
+				      cout<<"Gesture Signature "<<name[predictedClassLabel]<<endl;
+			}
+	}
+	else if(single==3)
+	{
+		int M=0;
+		cout<<"The angle is "<<average<<endl;
+		if(average<20)
+				M=1;
+
+		if(M==1)
+		{
+				if(options==1 )
+				{
+				cout<<"You want to save it "<<endl;
+				cin>>ch;
+				}
+				if( trainingData.loadDatasetFromFile("TrainingDataM_SingleHand.txt") );
+				if(ch==1 and options==1)
+				{
+						//After recording your training data you can then save it to a file
+						 //Load the data then save the file into it.
+						trainingData.addSample(gestureLabel,trainingSample);
+						if( trainingData.saveDatasetToFile( "TrainingDataM_SingleHand.txt" ) )
+									cout << "Training data saved to file\n";
+				}
+
+				if(options==2)
+				{
+
+				//dtw.enableTrimTrainingData(true,0.1,90);
+
+				//	dtwm.enableZNormalization( true );
+					dtwm.train(trainingData);
+					if( !dtwm.saveModelToFile("DTWModelM_SingleHand.txt") ){
+				        cout << "Failed to save the classifier model!\n";
+				        return EXIT_FAILURE;
+				    }
+					cout<<"42"<<endl;
+				    //Load the DTW model from a file
+				    if( !dtwm.loadModelFromFile("DTWModelM_SingleHand.txt") ){
+				        cout << "Failed to load the classifier model!\n";
+				        return EXIT_FAILURE;
+				    }
+
+				    //MatrixDouble timeseries = trainingSample;
+				    if( !dtwm.predict( trainingSample ) )
+				    {
+				               cout << "Failed to perform prediction for test sampel: "  <<"\n";
+				               return EXIT_FAILURE;
+				     }
+				      UINT predictedClassLabel = dtwm.getPredictedClassLabel();
+				      double maximumLikelihood = dtwm.getMaximumLikelihood();
+				      VectorDouble classLikelihoods = dtwm.getClassLikelihoods();
+				      VectorDouble classDistances = dtwm.getClassDistances();
+				      cout << "TestSample: "  <<  "\tClassLabel: " << 1 << "\tPredictedClassLabel: " << predictedClassLabel << "\tMaximumLikelihood: " << maximumLikelihood << endl;
+				      cout<<"Gesture Signature "<<name[predictedClassLabel]<<endl;
+			}
+		}
+		else
+		{
+			if(options==1 )
+							{
+							cout<<"You want to save it "<<endl;
+							cin>>ch;
+							}
+							if( trainingData.loadDatasetFromFile("TrainingDataF_SingleHand.txt") );
+							if(ch==1 and options==1)
+							{
+									//After recording your training data you can then save it to a file
+									 //Load the data then save the file into it.
+									trainingData.addSample(gestureLabel,trainingSample);
+									if( trainingData.saveDatasetToFile( "TrainingDataF_SingleHand.txt" ) )
+												cout << "Training data saved to file\n";
+							}
+
+							if(options==2)
+							{
+								//dtwf.enableZNormalization( true );
+								dtwf.train(trainingData);
+								if( !dtwf.saveModelToFile("DTWModelF_SingleHand.txt") ){
+							        cout << "Failed to save the classifier model!\n";
+							        return EXIT_FAILURE;
+							    }
+								cout<<"42"<<endl;
+							    //Load the DTW model from a file
+							    if( !dtwf.loadModelFromFile("DTWModelF_SingleHand.txt") ){
+							        cout << "Failed to load the classifier model!\n";
+							        return EXIT_FAILURE;
+							    }
+
+							    //MatrixDouble timeseries = trainingSample;
+							    if( !dtwf.predict( trainingSample ) )
+							    {
+							               cout << "Failed to perform prediction for test sampel: "  <<"\n";
+							               return EXIT_FAILURE;
+							     }
+							      UINT predictedClassLabel = dtwf.getPredictedClassLabel();
+							      double maximumLikelihood = dtwf.getMaximumLikelihood();
+							      VectorDouble classLikelihoods = dtwf.getClassLikelihoods();
+							      VectorDouble classDistances = dtwf.getClassDistances();
+							      cout << "TestSample: "  <<  "\tClassLabel: " << 1 << "\tPredictedClassLabel: " << predictedClassLabel << "\tMaximumLikelihood: " << maximumLikelihood << endl;
+							      cout<<"Gesture Signature "<<name[predictedClassLabel]<<endl;
+						}
+		}
+	}
+
+
+    return 0;
+}
+

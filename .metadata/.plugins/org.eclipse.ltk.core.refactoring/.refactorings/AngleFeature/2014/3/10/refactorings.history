@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Rename resource &apos;AngleFeature/src/Sign_Particle.cpp&apos; to &apos;Featurechange.cpp&apos;" description="Rename resource &apos;Sign_Particle.cpp&apos;" flags="7" id="org.eclipse.ltk.core.refactoring.rename.resource" input="src/Sign_Particle.cpp" name="Featurechange.cpp" stamp="1394126417586" updateReferences="true"/>
+</session>

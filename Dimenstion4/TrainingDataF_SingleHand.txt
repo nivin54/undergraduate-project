@@ -1,0 +1,87 @@
+GRT_LABELLED_TIME_SERIES_CLASSIFICATION_DATA_FILE_V1.0
+DatasetName: DummyData
+InfoText: This data contains some dummy timeseries data 
+NumDimensions: 2
+TotalNumTrainingExamples: 3
+NumberOfClasses: 2
+ClassIDsAndCounters: 
+19	2
+5	1
+UseExternalRanges: 0
+LabelledTimeSeriesTrainingData:
+************TIME_SERIES************
+ClassID: 19
+TimeSeriesLength: 25
+TimeSeriesData: 
+562	656
+592	504
+609	387
+518	260
+503	255
+512	256
+517	255
+517	254
+519	254
+523	253
+520	256
+508	261
+496	285
+489	313
+484	328
+472	385
+453	482
+449	542
+451	542
+450	537
+450	537
+448	543
+454	578
+452	660
+456	690
+************TIME_SERIES************
+ClassID: 19
+TimeSeriesLength: 25
+TimeSeriesData: 
+562	656
+592	504
+609	387
+518	260
+503	255
+512	256
+517	255
+517	254
+519	254
+523	253
+520	256
+508	261
+496	285
+489	313
+484	328
+472	385
+453	482
+449	542
+451	542
+450	537
+450	537
+448	543
+454	578
+452	660
+456	690
+************TIME_SERIES************
+ClassID: 5
+TimeSeriesLength: 14
+TimeSeriesData: 
+450	697
+456	684
+473	633
+498	560
+520	495
+539	429
+552	384
+560	364
+564	249
+539	280
+524	361
+512	489
+500	588
+495	637

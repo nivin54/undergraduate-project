@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Rename resource &apos;Sign_Particle/TrainingData.txt&apos; to &apos;TrainingData1.txt&apos;" description="Rename resource &apos;TrainingData.txt&apos;" flags="7" id="org.eclipse.ltk.core.refactoring.rename.resource" input="TrainingData.txt" name="TrainingData1.txt" stamp="1393673049464" updateReferences="true"/>
+</session>
